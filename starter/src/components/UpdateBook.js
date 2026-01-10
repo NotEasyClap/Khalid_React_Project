@@ -1,15 +1,18 @@
-import Book from "./Book";
+import React from "react";
 
-const UpdateBook = ({ books }) => {
+const UpdateBook = () => {
+
     return (
-        <div className="bookshelf-books">
-            <ol className="books-grid">
-                {books.map((book) => (
-                    <li key={book.id}>
-                        <Book book={book} />
-                    </li>
-                ))}
-            </ol>
+        <div className="book-shelf-changer">
+            <select value={"shelf"} onChange={""}>
+                <option value="none" disabled>
+                    Move to...
+                </option>
+                <option value="currentlyReading">Currently Reading</option>
+                <option value="wantToRead">Want to Read</option>
+                <option value="read">Read</option>
+                <option value="none">None</option>
+            </select>
         </div>
     );
 }
