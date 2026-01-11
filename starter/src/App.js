@@ -3,74 +3,59 @@ import {useEffect, useState} from "react";
 import * as BooksAPI from "./BooksAPI";
 import BookDisply from "./components/BookDisply";
 import SearchBook from "./components/SearchBook";
-
-// import {Route, Routes} from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
 
 function App() {
-    const [showSearchPage, setShowSearchpage] = useState(false);
-    // const [shelf, setShelf] = useState("None");
     const [books, setBooks] = useState([]);
+
     useEffect(() => {
         const loadBooks = async () => {
-            const books = await BooksAPI.getAll();
-            setBooks(books);
+            const all = await BooksAPI.getAll();
+            setBooks(all);
         };
         loadBooks();
     }, []);
 
-    console.log(books);
-    // const BookTypes = () => {
-    //     const currentlyReading = books.filter((book) => book.shelf === "currentlyReading");
-    //     // const wantToRead = books.filter((book) => book.shelf === "wantToRead");
-    //     // const read = books.filter((book) => book.shelf === "read");
-    // }
+    const handleUpdate = async (book, newShelf) => {
+        try {
+            await BooksAPI.update(book, newShelf);
+            setBooks((prev) => {
+                const exists = prev.find((b) => b.id === book.id);
+                if (exists) {
+                    return prev
+                        .map((b) => (b.id === book.id ? {...b, shelf: newShelf} : b))
+                        .filter((b) => !(newShelf === "none" && b.id === book.id));
+                } else {
+                    if (newShelf === "none") return prev;
+                    return [...prev, {...book, shelf: newShelf}];
+                }
+            });
+        } catch (err) {
+            console.error("Failed to update book:", err);
+        }
+    };
+
     return (
-        // Routes can be used for multiple pages if needed in future
-        /**
-         * Routes>
-         *     <Route path="/" element={ ... } />
-         *     <Route path="/search" element={ ... } />
-         * </Routes>
-         * */
-        <div className="app">
-            {showSearchPage ? (
-                <div className="search-books">
-                    <div className="search-books-bar">
-                        <a
-                            className="close-search"
-                            onClick={() => setShowSearchpage(!showSearchPage)}
-                        >
-                            Close
-                        </a>
-                        <div className="search-books-input-wrapper">
-                            <input
-                                type="text"
-                                placeholder="Search by title, author, or ISBN"
-                            />
+        <Router>
+            <Routes>
+                <Route
+                    path="/search"
+                    element={<SearchBook books={books} onUpdate={handleUpdate}/>}
+                />
+                <Route
+                    path="/"
+                    element={
+                        <div className="list-books">
+                            <BookDisply books={books} onUpdate={handleUpdate}/>
+                            <div className="open-search">
+                                <Link to="/search">Add a book</Link>
+                            </div>
                         </div>
-                    </div>
-                    <div className="search-books-results">
-                        <ol className="books-grid"><SearchBook books={books}/></ol>
-                    </div>
-                </div>
-            ) : (
+                    }
+                />
+            </Routes>
+        </Router>
 
-                <div className="list-books">
-                    {/*{console.log(books.filter((book) => book.shelf === "currentlyReading"))}*/}
-                    {/*{console.log("The typeof ", typeof (books))}*/}
-                    {/*{console.log('The book list',*/}
-                    {/*    books.forEach((book) => {*/}
-                    {/*        console.log(book);*/}
-                    {/*    })*/}
-                    {/*)}*/}
-
-                    <BookDisply books={books}/>
-                    <div className="open-search">
-                        <a onClick={() => setShowSearchpage(!showSearchPage)}>Add a book</a>
-                    </div>
-                </div>
-            )}
-        </div>
     );
 }
 

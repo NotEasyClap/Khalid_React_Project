@@ -1,7 +1,8 @@
 import React from "react";
 import UpdateBook from "./UpdateBook";
+import PropTypes from "prop-types";
 
-const BookDisply = ({books}) => {
+const BookDisply = ({books, onUpdate}) => {
     console.log("The book list", books);
     const BookRender = (shelfType) => {
 
@@ -12,7 +13,7 @@ const BookDisply = ({books}) => {
                 <div className="bookshelf-books">
                     <ol className="books-grid">
                         {filteredBooks.map((book) => (
-                            <li key={book.id || book.title}>
+                            <li key={book.id}>
                                 <div className="book">
                                     <div className="book-top">
                                         <div
@@ -23,18 +24,9 @@ const BookDisply = ({books}) => {
                                                 backgroundImage: `url("${book.imageLinks.thumbnail}")`,
                                             }}
                                         />
-                                        <div className="book-shelf-changer">
-                                            <select value={book.shelf || "none"} onChange={() => {
-                                            }}>
-                                                <option value="none" disabled>
-                                                    Move to...
-                                                </option>
-                                                <option value="currentlyReading">Currently Reading</option>
-                                                <option value="wantToRead">Want to Read</option>
-                                                <option value="read">Read</option>
-                                                <option value="none">None</option>
-                                            </select>
-                                        </div>
+                                        <UpdateBook book={book}
+                                                    onUpdate={onUpdate}
+                                        />
                                     </div>
                                     <div className="book-title">{book.title}</div>
                                     <div className="book-authors">
@@ -49,6 +41,7 @@ const BookDisply = ({books}) => {
             </div>
         );
     }
+
     return (
         <div className="list-books">
             {/*{console.log(book.filter((book) => book.shelf === "currentlyReading"))}*/}
@@ -72,5 +65,9 @@ const BookDisply = ({books}) => {
         </div>
     );
 }
-
 export default BookDisply;
+
+BookDisply.propTypes = {
+    books: PropTypes.array.isRequired,
+    onUpdate: PropTypes.func,
+};
